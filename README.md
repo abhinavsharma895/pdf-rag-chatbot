@@ -3,6 +3,7 @@
 A Streamlit-based PDF question-answering application that uses Retrieval-Augmented Generation (RAG) to answer questions using content extracted from uploaded PDF documents. It uses Google Gemini for embeddings and chat responses, and ChromaDB to store and retrieve relevant text chunks.
 
 ✨ Features
+
 - Multiple PDF uploads — upload more than one PDF in the sidebar.
 - PDF text extraction — extract text page by page using pypdf.
 - Text chunking — split document text into overlapping chunks for retrieval.
@@ -13,6 +14,7 @@ A Streamlit-based PDF question-answering application that uses Retrieval-Augment
 - Re-indexing detection — avoid rebuilding the vector store on every Streamlit rerun when the upload signature is unchanged.
 
 🧰 Tech Stack
+
 - Python
 - Streamlit
 - LangChain
@@ -24,6 +26,7 @@ A Streamlit-based PDF question-answering application that uses Retrieval-Augment
 
 
 🏗️ How It Works
+
 1. Upload one or more PDF files.
 2. The app extracts text from each PDF page and records the filename and page number as metadata.
 3. The extracted pages are split into chunks of 1,000 characters with 200 characters of overlap.
@@ -53,6 +56,7 @@ Gemini generates an answer
 Display answer and source details
 
 🗺️ Possible Future Improvements
+
 Every citation shows the correct file name and page, even when two files are searched together.
 
 A sidebar dropdown lets the user search All documents or one chosen file.
