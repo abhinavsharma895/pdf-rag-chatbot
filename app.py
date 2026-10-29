@@ -75,10 +75,7 @@ def retrieve_chunks(question):
 SYSTEM_PROMPT = """You are a helpful assistant that answers questions about a PDF document.
 
 Rules:
-1. Use ONLY the context below. Do not use outside knowledge.
-2. After every fact, add the number of the source it came from, like [1] or [2].
-3. If the answer is not in the context, say: "I could not find this in the document."
-
+1. After every fact, add the number of the source it came from, like [1] or [2].
 Context:
 {context}"""
 
@@ -128,34 +125,47 @@ st.set_page_config(page_title="Chat with your PDF", page_icon="📄")
 st.title("📄 Chat with your PDF")
 st.caption("Upload a PDF, then ask questions about it. Every answer comes with citations.")
 
-uploaded_file = st.sidebar.file_uploader("Upload a PDF", type="pdf")
+uploaded_files = st.sidebar.file_uploader("Upload a PDF",
+type="pdf",
+accept_multiple_files=True
+)
 
-if uploaded_file is None:
+if uploaded_files is None:
     st.info("👈 Upload a PDF from the sidebar to get started.")
     st.stop()
 
 # Streamlit re-runs this whole file on every click, so we only index
 # the PDF when it is a NEW file. Everything else lives in st.session_state.
-file_key = f"{uploaded_file.name}-{uploaded_file.size}"
+file_key = "-".join(
+    f"{file.name}-{file.size}"
+    for file in uploaded_files
+)
+
 
 if st.session_state.get("file_key") != file_key:
     with st.spinner("Reading and indexing your PDF..."):
-        pages = load_pdf(uploaded_file)
-        chunks = split_pages(pages)
+        all_chunks=[]
+        total_pages=0
 
-        if len(chunks) == 0:
+        for uploaded_file in uploaded_files:
+            pages=load_pdf(uploaded_file)
+            total_pages+=len(pages)
+            chunks=split_pages(pages)
+            all_chunks.extend(chunks)
+
+        if len(all_chunks) == 0:
             st.sidebar.error("No text found. Is this a scanned PDF?")
             st.stop()
 
-        st.session_state.vector_store = create_vector_store(chunks)
+        st.session_state.vector_store = create_vector_store(all_chunks)
         st.session_state.file_key = file_key
-        st.session_state.num_pages = len(pages)
-        st.session_state.num_chunks = len(chunks)
+        st.session_state.num_pages = total_pages
+        st.session_state.num_chunks = len(all_chunks)
         st.session_state.messages = []   # new PDF = new conversation
 
 st.sidebar.success(
-    f"{uploaded_file.name}: {st.session_state.num_pages} pages, "
-    f"{st.session_state.num_chunks} chunks"
+    f"{len(uploaded_files)} PDF(S) uploaded | "
+    f"{st.session_state.num_chunks} total chunks"
 )
 
 
