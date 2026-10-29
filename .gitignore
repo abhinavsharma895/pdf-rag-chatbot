@@ -1,0 +1,7 @@
+.env
+local-secrets/
+venv/
+.venv/
+.deepeval/
+__pycache__/
+*.pyc
