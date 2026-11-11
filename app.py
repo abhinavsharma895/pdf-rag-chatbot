@@ -66,26 +66,58 @@ def create_vector_store(chunks):
     return vector_store
 
 
-def retrieve_chunks(question):
-    """Find the 4 chunks that are most similar to the question."""
-    retriever = st.session_state.vector_store.as_retriever(search_kwargs={"k": 4})
+def retrieve_chunks(question, selected_file):
+    """Retrieve chunks from all PDFs or only the selected PDF."""
+
+    search_kwargs = {"k": 4}
+
+    if selected_file != "All Documents":
+        search_kwargs["filter"] = {
+            "source": selected_file
+        }
+
+    retriever = st.session_state.vector_store.as_retriever(
+        search_kwargs=search_kwargs
+    )
+
     return retriever.invoke(question)
 
 
-SYSTEM_PROMPT = """You are a helpful assistant that answers questions about a PDF document.
+SYSTEM_PROMPT = """
+You are a helpful assistant that answers questions using PDF documents.
 
 Rules:
-1. After every fact, add the number of the source it came from, like [1] or [2].
-Context:
-{context}"""
+1. Use only the provided context.
+2. Cite facts using [SOURCE 1], [SOURCE 2], etc.
+3. Each source contains a filename and page number.
+4. Never mix information from different PDFs.
+5. If information is not available, say:
+   "I could not find this information in the selected documents."
 
+Context:
+{context}
+"""
 
 def format_context(docs):
-    """Turn the retrieved chunks into one numbered block of text for the prompt."""
+
     parts = []
+
     for i, doc in enumerate(docs, start=1):
-        page = doc.metadata["page"] + 1   # PyPDFLoader counts pages from 0
-        parts.append(f"[{i}] (page {page})\n{doc.page_content}")
+
+        filename = doc.metadata["source"]
+        page = doc.metadata["page"] + 1
+
+        parts.append(
+            f"""
+[SOURCE {i}]
+Filename: {filename}
+Page: {page}
+
+Content:
+{doc.page_content}
+"""
+        )
+
     return "\n\n".join(parts)
 
 
@@ -130,7 +162,7 @@ type="pdf",
 accept_multiple_files=True
 )
 
-if uploaded_files is None:
+if not uploaded_files:
     st.info("👈 Upload a PDF from the sidebar to get started.")
     st.stop()
 
@@ -163,9 +195,12 @@ if st.session_state.get("file_key") != file_key:
         st.session_state.num_chunks = len(all_chunks)
         st.session_state.messages = []   # new PDF = new conversation
 
-st.sidebar.success(
-    f"{len(uploaded_files)} PDF(S) uploaded | "
-    f"{st.session_state.num_chunks} total chunks"
+# Document selection dropdown
+pdf_names = [file.name for file in uploaded_files]
+
+selected_file = st.sidebar.selectbox(
+    "📚 Select Document",
+    ["All Documents"] + pdf_names
 )
 
 
@@ -192,7 +227,7 @@ if question:
 
     with st.chat_message("assistant"):
         with st.spinner("Searching the document..."):
-            docs = retrieve_chunks(question)
+            docs = retrieve_chunks(question, selected_file)
             answer = ask_model(question, docs, st.session_state.messages)
             sources = build_sources(docs)
         st.markdown(answer)
