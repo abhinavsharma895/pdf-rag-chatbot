@@ -1,48 +1,74 @@
-# 📄 PDF RAG Chatbot
+# 📄 Chat with Multiple PDFs — RAG Chatbot
 
-An AI-powered PDF chatbot built with Python, Streamlit, LangChain, Google Gemini, and ChromaDB. Upload a PDF, ask questions about its content, and receive context-aware answers with source citations.
+A Streamlit-based PDF question-answering application powered by **Retrieval-Augmented Generation (RAG)**. Upload multiple PDF documents, ask questions, and receive AI-generated answers based on the document content.
+
+The application uses Google Gemini for embeddings and chat responses, and ChromaDB for storing and retrieving relevant document chunks.
 
 ## ✨ Features
 
-- **PDF Upload:** Upload PDF documents directly through the Streamlit interface.
-- **Text Extraction:** Extract text from PDF pages using PyPDF.
-- **Text Chunking:** Split document text into smaller, overlapping chunks.
-- **Vector Embeddings:** Generate embeddings using Google's Gemini embedding model.
-- **Vector Database:** Store and retrieve document embeddings using ChromaDB.
-- **Semantic Search:** Retrieve the most relevant document chunks for each question.
-- **AI-Powered Answers:** Generate answers using Google Gemini.
-- **Source Citations:** Display source references and page numbers alongside answers.
-- **Conversation History:** Maintain chat history while working with the same PDF.
-- **Answer Evaluation:** Includes a DeepEval evaluation script for testing answer quality.
+- **Multiple PDF uploads** — Upload multiple PDF files at once.
+- **PDF text extraction** — Extract text page by page using PyPDF.
+- **Text chunking** — Split document text into smaller overlapping chunks for better retrieval.
+- **Semantic search** — Retrieve relevant document chunks using ChromaDB.
+- **AI-generated answers** — Generate contextual answers using Google Gemini.
+- **Source references** — Display the correct PDF filename, page number, and retrieved text.
+- **Document filtering** — Search across All Documents or select a specific PDF using the sidebar dropdown.
+- **Document-specific retrieval** — Retrieve information only from the selected PDF.
+- **No unnecessary re-indexing** — Changing the document selection does not re-upload or re-index PDFs.
+- **Chat history** — Maintain conversation history during the Streamlit session.
+- **Upload change detection** — Rebuild the vector store when uploaded PDF files change.
 
-## 🛠️ Tech Stack
+## 🧰 Tech Stack
 
 - Python
 - Streamlit
 - LangChain
-- Google Gemini API
-- ChromaDB
-- PyPDF
-- DeepEval
+- Google Gemini (`langchain-google-genai`)
+- ChromaDB (`langchain-chroma`)
+- PyPDF (`pypdf`)
+- Recursive Character Text Splitter
+- python-dotenv
 
-## 🔍 How It Works
+## 🏗️ How It Works
 
-1. **Upload:** The user uploads a PDF document.
-2. **Extract:** The application extracts text from each page.
-3. **Chunk:** The extracted text is split into overlapping chunks.
-4. **Embed:** Google Gemini converts the chunks into vector embeddings.
-5. **Store:** ChromaDB stores the embeddings for similarity search.
-6. **Retrieve:** The application retrieves the four most relevant chunks for a question.
-7. **Generate:** Gemini generates an answer using the retrieved context and conversation history.
-8. **Cite:** The application displays source references and page numbers.
-9. 
+1. Upload one or more PDF files through the Streamlit sidebar.
+2. Extract text from each PDF page.
+3. Store the filename and page number as document metadata.
+4. Split extracted text into chunks of 1,000 characters with 200 characters of overlap.
+5. Generate embeddings using Google Gemini.
+6. Store document vectors in ChromaDB.
+7. Select All Documents or an individual PDF from the sidebar.
+8. Retrieve the four most relevant chunks based on the question and selected document.
+9. Send the retrieved context and question to Gemini.
+10. Display the generated answer with its source filename and page number.
 
-## 🚀 Future Improvements
-The user can upload several PDFs at once.
+## 🔍 Document Search Options
 
-Every citation shows the correct file name and page, even when two files are searched together.
+The application provides two search options:
 
-A sidebar dropdown lets the user search All documents or one chosen file.
+- **All Documents:** Search across all uploaded PDFs.
+- **Specific PDF:** Search only within the selected PDF.
 
-Changing the dropdown does not re-upload or re-index anything.
+Changing the dropdown selection does not rebuild the vector store or re-index the uploaded documents.
 
+## 🔄 Application Workflow
+
+```text
+Upload Multiple PDFs
+        ↓
+Extract Text Page by Page
+        ↓
+Split Text into Chunks
+        ↓
+Generate Gemini Embeddings
+        ↓
+Store Vectors in ChromaDB
+        ↓
+Select All Documents or One PDF
+        ↓
+Retrieve Relevant Chunks
+        ↓
+Generate Answer Using Gemini
+        ↓
+Display Answer and Source References
+```
