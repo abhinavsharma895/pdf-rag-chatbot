@@ -1,8 +1,8 @@
-streamlit>=1.30.0
+streamlit
 langchain
 langchain-core
-langchain-community
 langchain-google-genai
 langchain-chroma
-chromadb
+langchain-text-splitters
 pypdf
+python-dotenv
