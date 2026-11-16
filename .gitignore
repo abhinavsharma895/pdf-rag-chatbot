@@ -5,3 +5,4 @@ venv/
 .deepeval/
 __pycache__/
 *.pyc
+.streamlit/secrets.toml
