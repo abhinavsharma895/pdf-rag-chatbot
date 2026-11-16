@@ -1,6 +1,6 @@
 import uuid
 import streamlit as st
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_core.documents import Document
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
@@ -8,15 +8,15 @@ from langchain_chroma import Chroma
 from pypdf import PdfReader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-load_dotenv()
+# load_dotenv()
 
 import warnings
 warnings.filterwarnings("ignore")
 
-
+GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
 # Models (the same ones we used in class)
 
-embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-2-preview")
+embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-2-preview",api_key=GOOGLE_API_KEY)
 
 model = ChatGoogleGenerativeAI(
     model="gemini-3.5-flash-lite",
@@ -24,6 +24,7 @@ model = ChatGoogleGenerativeAI(
     max_tokens=None,
     timeout=None,
     max_retries=2,
+    api_key=GOOGLE_API_KEY
 )
 
 
